@@ -258,12 +258,13 @@ TcpTransport::accept_datalink(const RemoteTransport& remote,
   TcpConnection_rch connection;
   {
     GuardType guard(connections_lock_);
-    const ConnectionMap::iterator iter = connections_.find(key);
 
-    if (iter != connections_.end()) {
-      connection = iter->second;
-      connections_.erase(iter);
-    }
+    ACE_INET_Addr temp_all = key.address();
+    ACE_INET_Addr temp;
+    do {
+      temp.set_addr(temp_all.get_addr(), temp_all.get_addr_size());
+      connections_.erase(PriorityKey(attribs.priority_, temp, key.is_loopback(), false));
+    } while (temp_all.next());
   }
 
   if (connection.is_nil()) {
