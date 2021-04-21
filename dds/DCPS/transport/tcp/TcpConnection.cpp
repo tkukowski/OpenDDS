@@ -270,7 +270,15 @@ OpenDDS::DCPS::TcpConnection::handle_setup_input(ACE_HANDLE /*h*/)
               "remove_handler failed %m.\n"));
       }
 
-      transport_during_setup_->passive_connection(remote_address_, rchandle_from(this));
+      ACE_INET_Addr temp_all(remote_address_);
+      OPENDDS_SET(ACE_INET_Addr) addr_set;
+      do {
+        ACE_INET_Addr temp;
+        temp.set_addr(temp_all.get_addr(), temp_all.get_addr_size());
+        if (addr_set.insert(temp).second) {
+          transport_during_setup_->passive_connection(temp, rchandle_from(this));
+        }
+      } while (temp_all.next());
 
       return 0;
     }
