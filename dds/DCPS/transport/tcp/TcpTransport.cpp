@@ -260,10 +260,13 @@ TcpTransport::accept_datalink(const RemoteTransport& remote,
     GuardType guard(connections_lock_);
 
     ACE_INET_Addr temp_all = key.address();
-    ACE_INET_Addr temp;
+    OPENDDS_SET(ACE_INET_Addr) addr_set;
     do {
+      ACE_INET_Addr temp;
       temp.set_addr(temp_all.get_addr(), temp_all.get_addr_size());
-      connections_.erase(PriorityKey(attribs.priority_, temp, key.is_loopback(), false));
+      if (addr_set.insert(temp).second) {
+        connections_.erase(PriorityKey(attribs.priority_, temp, key.is_loopback(), false));
+      }
     } while (temp_all.next());
   }
 
