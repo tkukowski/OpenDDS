@@ -147,20 +147,33 @@ ACE_TMAIN(int argc, ACE_TCHAR *argv[])
 
     message.from       = "Comic Book Guy";
     message.subject    = "Review";
-    message.text       = "Worst. Movie. Ever.";
+    //message.text       = "Worst. Movie. Ever. RSmith checkpoint.";
     message.count      = 0;
+    printf("Creating message\n"); 
+    
+    std::string text = "";
+    std::string a10 = "aaaaaaaaaa";// 10 "a"s
+    std::string a100 = a10 + a10 + a10 + a10 + a10 + a10 + a10 + a10 + a10 + a10; // 100 "a"s
+    std::string a1000 = a100 + a100 + a100 + a100 + a100 + a100 + a100 + a100 + a100 + a100; // 1000 "a"s
+    std::string a10000 = a1000 + a1000 + a1000 + a1000 + a1000 + a1000 + a1000 + a1000 + a1000 + a1000; // 10000 "a"s
+    for(int i=0; i<1000; i++) {
+      text = text + a10000; 
+    }
+    printf("Saving message\n");
+    
+    const char* textMsg = text.c_str();
+    message.text = textMsg;
 
-    for (int i = 0; i < 10; ++i) {
-      DDS::ReturnCode_t error = message_writer->write(message, DDS::HANDLE_NIL);
-      ++message.count;
-      ++message.subject_id;
-
-      if (error != DDS::RETCODE_OK) {
+    ///////////////////////////////////////////////////////////////////////////
+    printf("Sending message\n");
+    DDS::ReturnCode_t error = message_writer->write(message, DDS::HANDLE_NIL);
+    printf("Message sent\n");
+    if (error != DDS::RETCODE_OK) {
         ACE_ERROR((LM_ERROR,
                    ACE_TEXT("ERROR: %N:%l: main() -")
                    ACE_TEXT(" write returned %d!\n"), error));
       }
-    }
+    
 
     // Wait for samples to be acknowledged
     DDS::Duration_t timeout = { 30, 0 };
@@ -170,6 +183,31 @@ ACE_TMAIN(int argc, ACE_TCHAR *argv[])
                         ACE_TEXT(" wait_for_acknowledgments failed!\n")),
                        1);
     }
+    else{
+      printf("Acknowledgement received\n");
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    
+    // for (int i = 0; i < 10; ++i) {
+    //   DDS::ReturnCode_t error = message_writer->write(message, DDS::HANDLE_NIL);
+    //   ++message.count;
+    //   ++message.subject_id;
+
+    //   if (error != DDS::RETCODE_OK) {
+    //     ACE_ERROR((LM_ERROR,
+    //                ACE_TEXT("ERROR: %N:%l: main() -")
+    //                ACE_TEXT(" write returned %d!\n"), error));
+    //   }
+    // }
+
+    // // Wait for samples to be acknowledged
+    // DDS::Duration_t timeout = { 30, 0 };
+    // if (message_writer->wait_for_acknowledgments(timeout) != DDS::RETCODE_OK) {
+    //   ACE_ERROR_RETURN((LM_ERROR,
+    //                     ACE_TEXT("ERROR: %N:%l: main() -")
+    //                     ACE_TEXT(" wait_for_acknowledgments failed!\n")),
+    //                    1);
+    // }
 
     // Clean-up!
     participant->delete_contained_entities();
